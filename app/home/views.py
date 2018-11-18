@@ -3,9 +3,66 @@
 # @Time    : 2018/11/14 下午 07:54
 # @Author  : gao
 # @File    : views.py
+from flask import render_template, redirect, url_for
+
 from app.home import home
+
+
+@home.route('/login/')
+def login():
+    return render_template('home/login.html')
+
+
+@home.route('/lougot/')
+def lougot():
+    return redirect(url_for('home.index'))
+
+
+@home.route('/regist/')
+def regist():
+    return render_template('home/regist.html')
+
+
+@home.route('/user/')
+def user():
+    return render_template('home/user.html')
+
+
+@home.route('/pwd/')
+def pwd():
+    return render_template('home/pwd.html')
+
+
+@home.route('/comments/')
+def comments():
+    return render_template('home/comments.html')
+
+
+@home.route('/loginlog/')
+def loginlog():
+    return render_template('home/loginlog.html')
+
+
+@home.route('/moviecol/')
+def moviecol():
+    return render_template('home/moviecol.html')
 
 
 @home.route('/')
 def index():
-    return "前台主页"
+    return render_template('home/index.html')
+
+
+@home.route('/animation/')
+def animation():
+    return render_template('home/animation.html')
+
+
+@home.route('/search/')
+def search():
+    return render_template('home/search.html')
+
+
+@home.route('/play/')
+def play():
+    return render_template('home/play.html')
