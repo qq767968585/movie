@@ -151,7 +151,7 @@ class Admin(db.Model):
     id = db.Column(db.Integer, primary_key=True)  # 编号
     name = db.Column(db.String(100), unique=True)  # 管理员账号
     pwd = db.Column(db.String(100))  # 管理员密码
-    is_super = db.Column(db.SmallInteger)  # 是否为超级管理员, 0为超级管理员
+    is_super = db.Column(db.Boolean)  # 是否为超级管理员
     role_id = db.Column(db.Integer, db.ForeignKey('role.id'))  # 所属角色
     addtime = db.Column(db.DateTime, index=True, default=datetime.datetime.now)  # 添加时间
     adminlogs = db.relationship('Adminlog', backref='admin')  # 管理员登陆日志外键关系关联
@@ -187,4 +187,19 @@ class Oplog(db.Model):
 
 
 if __name__ == '__main__':
-    db.create_all()
+    # db.create_all()
+    # role = Role(
+    #     name="超级管理员",
+    #     auths=""
+    # )
+    # db.session.add(role)
+    # db.session.commit()
+    from werkzeug.security import generate_password_hash
+    admin = Admin(
+        name="imoocadmin",
+        pwd=generate_password_hash('imoocadmin'),
+        is_super=True,
+        role_id=1
+    )
+    db.session.add(admin)
+    db.session.commit()
