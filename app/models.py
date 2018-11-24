@@ -5,15 +5,7 @@
 # @File    : models.py
 import datetime
 
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-
-
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:123456@127.0.0.1:3306/movie'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
-
-db = SQLAlchemy(app)
+from app import db
 
 
 # 会员
@@ -73,7 +65,7 @@ class Movie(db.Model):
     commentnum = db.Column(db.BigInteger)  # 评论量
     tag_id = db.Column(db.Integer, db.ForeignKey('tag.id'))  # 所属标签
     area = db.Column(db.String(255))  # 上映地区
-    release_time = (db.Date)  # 上映时间
+    release_time = db.Column(db.Date)  # 上映时间
     length = db.Column(db.String(100))  # 播放时间
     addtime = db.Column(db.DateTime, index=True, default=datetime.datetime.now)  # 添加时间
     comments = db.relationship('Comment', backref='movie')  # 评论外键关系关联
@@ -157,6 +149,10 @@ class Admin(db.Model):
     adminlogs = db.relationship('Adminlog', backref='admin')  # 管理员登陆日志外键关系关联
     oplogs = db.relationship('Oplog', backref='admin')  # 管理员操作日志外键关系关联
 
+    def check_pwd(self, pwd):
+        from werkzeug.security import check_password_hash
+        return check_password_hash(self.pwd, pwd)
+
     def __str__(self):
         return "<Admin {}>".format(self.name)
 
@@ -188,6 +184,7 @@ class Oplog(db.Model):
 
 if __name__ == '__main__':
     # db.create_all()
+    # db.drop_all()
     # role = Role(
     #     name="超级管理员",
     #     auths=""
@@ -195,6 +192,7 @@ if __name__ == '__main__':
     # db.session.add(role)
     # db.session.commit()
     from werkzeug.security import generate_password_hash
+
     admin = Admin(
         name="imoocadmin",
         pwd=generate_password_hash('imoocadmin'),
