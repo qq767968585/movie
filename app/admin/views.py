@@ -70,7 +70,7 @@ def change_filename(filename):
 
 @admin.route('/')
 @admin_login_req
-@admin_auth
+# @admin_auth
 def index():
     return render_template('admin/index.html')
 
@@ -126,7 +126,7 @@ def pwd():
 
 @admin.route('/tag/add/', methods=['GET', 'POST'])
 @admin_login_req
-@admin_auth
+# @admin_auth
 def tag_add():
     form = TagForm()
     if form.validate_on_submit():
@@ -156,7 +156,7 @@ def tag_add():
 
 @admin.route('/tag/list/<int:page>/')
 @admin_login_req
-@admin_auth
+# @admin_auth
 def tag_list(page=1):
     if page <= 0:
         page = 1
@@ -168,7 +168,7 @@ def tag_list(page=1):
 
 @admin.route('/tag/del/<int:id>/')
 @admin_login_req
-@admin_auth
+# @admin_auth
 def tag_del(id=None):
     tag = Tag.query.filter_by(id=id).first_or_404()
     db.session.delete(tag)
@@ -179,7 +179,7 @@ def tag_del(id=None):
 
 @admin.route('/tag/edit/<int:id>/', methods=['GET', 'POST'])
 @admin_login_req
-@admin_auth
+# @admin_auth
 def tag_edit(id=None):
     form = TagForm()
     tag = Tag.query.get_or_404(id)
@@ -199,7 +199,7 @@ def tag_edit(id=None):
 
 @admin.route('/movie/add/', methods=['GET', 'POST'])
 @admin_login_req
-@admin_auth
+# @admin_auth
 def movie_add():
     form = MovieForm()
     if form.validate_on_submit():
@@ -238,7 +238,7 @@ def movie_add():
 
 @admin.route('/movie/list/<int:page>/')
 @admin_login_req
-@admin_auth
+# @admin_auth
 def movie_list(page=1):
     if page <= 0:
         page = 1
@@ -252,7 +252,7 @@ def movie_list(page=1):
 
 @admin.route('/movie/del/<int:id>/')
 @admin_login_req
-@admin_auth
+# @admin_auth
 def movie_del(id=None):
     movie = Movie.query.get_or_404(int(id))
     db.session.delete(movie)
@@ -263,9 +263,20 @@ def movie_del(id=None):
 
 @admin.route('/movie/edit/<int:id>', methods=['GET', 'POST'])
 @admin_login_req
-@admin_auth
+# @admin_auth
 def movie_edit(id=None):
     form = MovieForm()
+
+    # 如果不设置,默认依然会让上传文件
+    form.url.flags.required = False
+    form.logo.flags.required = False
+
+    # 取消校验,可能没有上传文件
+    form.url.validators=[]
+    form.logo.validators=[]
+    # 取消后如果没有上传文件,form.url.data是一个str对象
+    # 上传文件后是才是一个文件对象
+    # 为了方便,设置必须上传文件
 
     movie = Movie.query.get_or_404(int(id))
     if request.method == 'GET':
@@ -283,12 +294,12 @@ def movie_edit(id=None):
             os.makedirs(app.config['UP_DIR'])
             os.chmod(app.config['UP_DIR'], 6)
 
-        if form.url.data.filename != '':
+        if getattr(form.url.data, 'filename', ''):
             file_url = secure_filename(form.url.data.filename)
             movie.url = change_filename(file_url)
             form.url.data.save(app.config['UP_DIR'] + movie.url)
 
-        if form.logo.data.filename != '':
+        if getattr(form.logo.data, 'filename', ''):
             file_logo = secure_filename(form.logo.data.filename)
             movie.logo = change_filename(file_logo)
             form.logo.data.save(app.config['UP_DIR'] + movie.logo)
@@ -304,13 +315,13 @@ def movie_edit(id=None):
         db.session.add(movie)
         db.session.commit()
         flash('电影修改成功!', 'info')
-        return redirect(url_for('admin.movie_add', id=movie.id))
+        return redirect(url_for('admin.movie_edit', id=movie.id))
     return render_template('admin/movie_edit.html', form=form, movie=movie)
 
 
 @admin.route('/preview/add/', methods=['GET', 'POST'])
 @admin_login_req
-@admin_auth
+# @admin_auth
 def preview_add():
     form = PreviewForm()
     if form.validate_on_submit():
@@ -336,7 +347,7 @@ def preview_add():
 
 @admin.route('/preview/list/<int:page>/')
 @admin_login_req
-@admin_auth
+# @admin_auth
 def preview_list(page=1):
     if page <= 0:
         page = 1
@@ -348,7 +359,7 @@ def preview_list(page=1):
 
 @admin.route('/preview/del/<int:id>/')
 @admin_login_req
-@admin_auth
+# @admin_auth
 def preview_del(id=None):
     preview = Preview.query.get_or_404(int(id))
     db.session.delete(preview)
@@ -359,7 +370,7 @@ def preview_del(id=None):
 
 @admin.route('/preview/edit/<int:id>/', methods=['GET', 'POST'])
 @admin_login_req
-@admin_auth
+# @admin_auth
 def preview_edit(id=None):
     form = PreviewForm()
     preview = Preview.query.get_or_404(int(id))
@@ -389,7 +400,7 @@ def preview_edit(id=None):
 
 @admin.route('/user/view/<int:id>/')
 @admin_login_req
-@admin_auth
+# @admin_auth
 def user_view(id=None):
     user = User.query.get_or_404(int(id))
     return render_template('admin/user_view.html', user=user)
@@ -397,7 +408,7 @@ def user_view(id=None):
 
 @admin.route('/user/list/<int:page>/')
 @admin_login_req
-@admin_auth
+# @admin_auth
 def user_list(page=1):
     if page <= 0:
         page = 1
@@ -409,7 +420,7 @@ def user_list(page=1):
 
 @admin.route('/user/del/<int:id>/')
 @admin_login_req
-@admin_auth
+# @admin_auth
 def user_del(id=None):
     user = User.query.get_or_404(int(id))
     db.session.delete(user)
@@ -420,7 +431,7 @@ def user_del(id=None):
 
 @admin.route('/comment/list/<int:page>/')
 @admin_login_req
-@admin_auth
+# @admin_auth
 def comment_list(page=1):
     if page <= 0:
         page = 1
@@ -439,7 +450,7 @@ def comment_list(page=1):
 
 @admin.route('/comment/del/<int:id>/')
 @admin_login_req
-@admin_auth
+# @admin_auth
 def comment_del(id=None):
     comment = Comment.query.get_or_404(int(id))
     db.session.delete(comment)
@@ -450,7 +461,7 @@ def comment_del(id=None):
 
 @admin.route('/moviecol/list/<int:page>/')
 @admin_login_req
-@admin_auth
+# @admin_auth
 def moviecol_list(page=1):
     if page <= 0:
         page = 1
@@ -469,7 +480,7 @@ def moviecol_list(page=1):
 
 @admin.route('/moviecol/del/<int:id>/')
 @admin_login_req
-@admin_auth
+# @admin_auth
 def moviecol_del(id=None):
     moviecol = Moviecol.query.get_or_404(int(id))
     db.session.delete(moviecol)
@@ -480,7 +491,7 @@ def moviecol_del(id=None):
 
 @admin.route('/oplog/list/<int:page>/')
 @admin_login_req
-@admin_auth
+# @admin_auth
 def oplog_list(page=1):
     if page <= 0:
         page = 1
@@ -496,7 +507,7 @@ def oplog_list(page=1):
 
 @admin.route('/adminloginlog/list/<int:page>/')
 @admin_login_req
-@admin_auth
+# @admin_auth
 def adminloginlog_list(page=1):
     if page <= 0:
         page = 1
@@ -512,7 +523,7 @@ def adminloginlog_list(page=1):
 
 @admin.route('/userloginlog/list/<int:page>/')
 @admin_login_req
-@admin_auth
+# @admin_auth
 def userloginlog_list(page=1):
     if page <= 0:
         page = 1
@@ -528,7 +539,7 @@ def userloginlog_list(page=1):
 
 @admin.route('/role/add/', methods=['GET', 'POST'])
 @admin_login_req
-@admin_auth
+# @admin_auth
 def role_add():
     form = RoleForm()
     if form.validate_on_submit():
@@ -546,7 +557,7 @@ def role_add():
 
 @admin.route('/role/list/<int:page>/')
 @admin_login_req
-@admin_auth
+# @admin_auth
 def role_list(page=1):
     if page <= 0:
         page = 1
@@ -558,7 +569,7 @@ def role_list(page=1):
 
 @admin.route('/role/del/<int:id>/')
 @admin_login_req
-@admin_auth
+# @admin_auth
 def role_del(id=None):
     role = Role.query.get_or_404(int(id))
     db.session.delete(role)
@@ -569,7 +580,7 @@ def role_del(id=None):
 
 @admin.route('/role/edit/<int:id>/', methods=['GET', 'POST'])
 @admin_login_req
-@admin_auth
+# @admin_auth
 def role_edit(id=None):
     form = RoleForm()
     role = Role.query.get_or_404(int(id))
@@ -591,7 +602,7 @@ def role_edit(id=None):
 
 @admin.route('/auth/add/', methods=['GET', 'POST'])
 @admin_login_req
-@admin_auth
+# @admin_auth
 def auth_add():
     form = AuthForm()
     if form.validate_on_submit():
@@ -610,7 +621,7 @@ def auth_add():
 
 @admin.route('/auth/list/<int:page>/')
 @admin_login_req
-@admin_auth
+# @admin_auth
 def auth_list(page=1):
     if page <= 0:
         page = 1
@@ -622,7 +633,7 @@ def auth_list(page=1):
 
 @admin.route('/auth/del/<int:id>/')
 @admin_login_req
-@admin_auth
+# @admin_auth
 def auth_del(id=None):
     auth = Auth.query.get_or_404(int(id))
     db.session.delete(auth)
@@ -633,7 +644,7 @@ def auth_del(id=None):
 
 @admin.route('/auth/edit/<int:id>/', methods=['GET', 'POST'])
 @admin_login_req
-@admin_auth
+# @admin_auth
 def auth_edit(id=None):
     form = AuthForm()
     auth = Auth.query.get_or_404(int(id))
@@ -653,7 +664,7 @@ def auth_edit(id=None):
 
 @admin.route('/admin/add/', methods=['GET', 'POST'])
 @admin_login_req
-@admin_auth
+# @admin_auth
 def admin_add():
     form = AdminForm()
 
@@ -678,7 +689,7 @@ def admin_add():
 
 @admin.route('/admin/list/<int:page>/')
 @admin_login_req
-@admin_auth
+# @admin_auth
 def admin_list(page=1):
     if page <= 0:
         page = 1

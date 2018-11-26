@@ -182,11 +182,6 @@ class MovieForm(FlaskForm):
         }
     )
 
-    def validate_title(self, field):
-        title = field.data
-        num = Movie.query.filter_by(title=title).count()
-        if num > 0:
-            raise ValidationError("该电影已存在!")
 
 
 class PreviewForm(FlaskForm):
