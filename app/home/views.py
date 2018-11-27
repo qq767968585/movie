@@ -330,7 +330,7 @@ def animation():
     """
     首页轮播动画
     """
-    data = Preview.query.all()
+    data = Preview.query.all()[:5]
     for v in data:
         v.id = v.id - 1
     return render_template("home/animation.html", data=data)
